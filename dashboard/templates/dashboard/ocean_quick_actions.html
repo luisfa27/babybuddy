@@ -146,6 +146,16 @@
                 <span class="ocean-tile-sub">{% if is_pt == 'pt' %}Iniciar Cronômetro{% else %}Start Stopwatch{% endif %}</span>
             </a>
         {% endif %}
+
+        <a class="ocean-action-tile" href="{% url 'core:contraction-timer' %}">
+            <span class="ocean-tile-icon tone-contractions">
+                <svg width="26" height="26" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                    <path d="M4 16 H8 L10.5 9 L14 21 L17 12 L19.5 16 H24" stroke="#fda4af" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </span>
+            <span class="ocean-tile-title">{% if is_pt == 'pt' %}Contrações{% else %}{% trans "Contractions" %}{% endif %}</span>
+            <span class="ocean-tile-sub">Contador 5-1-1</span>
+        </a>
     </div>
 </section>
 {% endwith %}

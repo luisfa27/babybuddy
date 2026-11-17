@@ -57,13 +57,13 @@
                             </a>
                             <a class="dropdown-item p-2" href="{% url 'core:bottle-feeding-add' %}">
                                 <i class="icon-feeding" aria-hidden="true"></i>
-                                {% trans "Bottle Feeding" %}
+                                {% if LANGUAGE_CODE|slice:":2" == "pt" %}Mamadeira{% else %}{% trans "Bottle Feeding" %}{% endif %}
                             </a>
                         {% endif %}
                         {% if perms.core.add_medication %}
                             <a class="dropdown-item p-2" href="{% url 'core:medication-add' %}">
                                 <i class="icon-medication" aria-hidden="true"></i>
-                                {% trans "Medication" %}
+                                {% if LANGUAGE_CODE|slice:":2" == "pt" %}Medicação{% else %}{% trans "Medication" %}{% endif %}
                             </a>
                         {% endif %}
                         {% if perms.core.add_pumping %}
@@ -90,6 +90,10 @@
                                 {% trans "Tummy Time" %}
                             </a>
                         {% endif %}
+                        <a class="dropdown-item p-2" href="{% url 'core:contraction-timer' %}">
+                            <i class="icon-timer" aria-hidden="true"></i>
+                            {% if LANGUAGE_CODE|slice:":2" == "pt" %}Contrações{% else %}{% trans "Contractions" %}{% endif %}
+                        </a>
                     </div>
                 </div>
             </div>
@@ -268,19 +272,19 @@
                             {% if perms.core.add_feeding %}
                                 <a class="dropdown-item ps-5{% if request.path == '/feedings/bottle/add/' %} active{% endif %}"
                                    href="{% url 'core:bottle-feeding-add' %}"><i class="icon-add" aria-hidden="true"></i>
-                                    {% trans "Bottle Feeding" %}
+                                    {% if LANGUAGE_CODE|slice:":2" == "pt" %}Mamadeira{% else %}{% trans "Bottle Feeding" %}{% endif %}
                                 </a>
                             {% endif %}
                             {% if perms.core.view_medication %}
                                 <a class="dropdown-item{% if request.path == '/medication/' %} active{% endif %}"
                                    href="{% url 'core:medication-list' %}"><i class="icon-medication" aria-hidden="true"></i>
-                                    {% trans "Medication" %}
+                                    {% if LANGUAGE_CODE|slice:":2" == "pt" %}Medicações{% else %}{% trans "Medication" %}{% endif %}
                                 </a>
                             {% endif %}
                             {% if perms.core.add_medication %}
                                 <a class="dropdown-item ps-5{% if request.path == '/medication/add/' %} active{% endif %}"
                                    href="{% url 'core:medication-add' %}"><i class="icon-add" aria-hidden="true"></i>
-                                    {% trans "Medication" %}
+                                    {% if LANGUAGE_CODE|slice:":2" == "pt" %}Medicação{% else %}{% trans "Medication" %}{% endif %}
                                 </a>
                             {% endif %}
                             {% if perms.core.view_pumping %}
@@ -320,11 +324,22 @@
                                     {% trans "Tummy Time entry" %}
                                 </a>
                             {% endif %}
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item{% if '/contractions' in request.path %} active{% endif %}"
+                               href="{% url 'core:contraction-timer' %}"><i class="icon-timer" aria-hidden="true"></i>
+                                {% if LANGUAGE_CODE|slice:":2" == "pt" %}Contrações (Timer 5-1-1){% else %}{% trans "Contraction Timer" %}{% endif %}
+                            </a>
                         </div>
                     </li>
                     {% if perms.core.view_timer %}
                         {% timer_nav %}
                     {% endif %}
+                    <li class="nav-item{% if '/contractions' in request.path %} active{% endif %}">
+                        <a class="nav-link" href="{% url 'core:contraction-timer' %}">
+                            <i class="icon-timer" aria-hidden="true"></i>
+                            {% if LANGUAGE_CODE|slice:":2" == "pt" %}Contrações{% else %}{% trans "Contractions" %}{% endif %}
+                        </a>
+                    </li>
                 </ul>
                 {% if request.user %}
                     <ul class="navbar-nav ms-auto">
@@ -363,9 +378,9 @@
                                        class="dropdown-item">{% trans "Database Admin" %}</a>
                                 {% endif %}
                                 <h6 class="dropdown-header">{% trans "Support" %}</h6>
-                                <a href="https://github.com/babybuddy/babybuddy" class="dropdown-item">
+                                <a href="https://github.com/babybuddy/babybuddy" class="dropdown-item" target="_blank" rel="noopener noreferrer">
                                     <i class="icon-source" aria-hidden="true"></i> {% trans "Source Code" %}</a>
-                                <a href="https://gitter.im/babybuddy/Lobby" class="dropdown-item">
+                                <a href="https://gitter.im/babybuddy/Lobby" class="dropdown-item" target="_blank" rel="noopener noreferrer">
                                     <i class="icon-chat" aria-hidden="true"></i> {% trans "Chat / Support" %}</a>
                                 <h6 class="dropdown-header">v{% version_string %}</h6>
                             </div>

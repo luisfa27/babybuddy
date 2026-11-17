@@ -139,4 +139,14 @@ urlpatterns = [
     path("bmi/add/", views.BMIAdd.as_view(), name="bmi-add"),
     path("bmi/<int:pk>/", views.BMIUpdate.as_view(), name="bmi-update"),
     path("bmi/<int:pk>/delete/", views.BMIDelete.as_view(), name="bmi-delete"),
+    path(
+        "contractions/",
+        views.ContractionTimer.as_view(),
+        name="contraction-timer",
+    ),
+    path(
+        "contractions/api/",
+        views.ContractionTimerAPI.as_view(),
+        name="contraction-timer-api",
+    ),
 ]

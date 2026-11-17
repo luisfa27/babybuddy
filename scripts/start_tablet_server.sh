@@ -35,4 +35,4 @@ echo "=================================================="
 echo "  Pressione Ctrl+C para encerrar o servidor."
 echo ""
 
-exec python manage.py runserver 0.0.0.0:8000
+exec python manage.py runserver 0.0.0.0:8000 --noreload

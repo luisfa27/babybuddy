@@ -24,6 +24,14 @@ TIME_ZONE = os.environ.get("TIME_ZONE", "America/Sao_Paulo")
 STORAGES["staticfiles"][
     "BACKEND"
 ] = "django.contrib.staticfiles.storage.StaticFilesStorage"
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = bool(DEBUG)
+
+# Local standalone security hardening (works over HTTP on local Wi-Fi / Tailscale)
+SESSION_COOKIE_HTTPONLY = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = "same-origin"
+X_FRAME_OPTIONS = "SAMEORIGIN"
 
 
 # Logging

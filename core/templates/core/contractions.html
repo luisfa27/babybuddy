@@ -1,0 +1,547 @@
+{% extends "babybuddy/page.html" %}
+{% load i18n static %}
+{% block title %}Contrações — Timer 5-1-1{% endblock %}
+{% block breadcrumbs %}
+    <li class="breadcrumb-item active" aria-current="page">Contrações</li>
+{% endblock %}
+{% block content %}
+<form id="contraction-csrf-form" class="d-none">{% csrf_token %}</form>
+
+<div class="row g-3">
+    <!-- At-a-Glance State Hero Card -->
+    <div class="col-12">
+        <section id="contraction-stage-card" class="contraction-stage-card state-break" aria-live="polite">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                <span id="contraction-status-badge" class="ocean-badge-pill">
+                    <span class="contraction-pulse-dot" aria-hidden="true"></span>
+                    <span id="contraction-status-label">Em Pausa — Pronto para Iniciar</span>
+                </span>
+                <span id="contraction-sync-status" class="small text-body-secondary">
+                    Sincronizado em tempo real (Android · iPhone · Tablet)
+                </span>
+            </div>
+
+            <div class="text-center py-2">
+                <div id="contraction-clock" class="contraction-clock">00:00</div>
+                <p id="contraction-subtitle" class="mb-3 text-body-secondary">
+                    Toque no botão abaixo assim que sentir uma contração começar.
+                </p>
+
+                <!-- Intensity & Optional Note (visible while contracting) -->
+                <div id="contraction-active-controls" class="mb-3 d-none">
+                    <div class="d-flex flex-wrap justify-content-center gap-2 mb-3" role="group" aria-label="Intensidade da contração">
+                        <button type="button" class="intensity-pill" data-intensity="mild">🌊 Leve</button>
+                        <button type="button" class="intensity-pill active" data-intensity="moderate">🐋 Moderada</button>
+                        <button type="button" class="intensity-pill" data-intensity="strong">⚡ Forte</button>
+                    </div>
+                    <div class="mx-auto" style="max-width: 420px;">
+                        <input id="contraction-note-input"
+                               type="text"
+                               maxlength="200"
+                               class="form-control form-control-sm text-center"
+                               placeholder="Observação opcional (ex.: dor nas costas, intensidade...)" />
+                    </div>
+                </div>
+
+                <!-- Main Touch-Friendly Action Buttons -->
+                <div id="contraction-buttons-break" class="d-flex flex-wrap justify-content-center gap-2">
+                    <button id="btn-start-contraction" type="button" class="btn btn-lg contraction-main-btn btn-primary px-4 py-3">
+                        🌊 Iniciar Contração
+                    </button>
+                </div>
+
+                <div id="contraction-buttons-contracting" class="d-flex flex-wrap justify-content-center gap-2 d-none">
+                    <button id="btn-end-contraction" type="button" class="btn btn-lg contraction-main-btn btn-success px-4 py-3">
+                        🫧 Fim da Contração (Descansar)
+                    </button>
+                    <button id="btn-cancel-contraction" type="button" class="btn btn-outline-light px-3 py-2">
+                        Cancelar / Pausa
+                    </button>
+                </div>
+
+                <div id="contraction-buttons-resting" class="d-flex flex-wrap justify-content-center gap-2 d-none">
+                    <button id="btn-next-contraction" type="button" class="btn btn-lg contraction-main-btn btn-primary px-4 py-3">
+                        🌊 Nova Contração!
+                    </button>
+                    <button id="btn-take-break" type="button" class="btn btn-outline-light px-3 py-2">
+                        ⏸ Fazer uma Pausa (Parar)
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- 1-Hour Rolling Averages -->
+    <div class="col-6 col-md-3">
+        <div class="card contraction-stat-card h-100">
+            <div class="card-body text-center">
+                <div class="small text-body-secondary mb-1">Duração Média (1h)</div>
+                <div id="stat-avg-duration" class="fs-3 fw-bold text-info">--</div>
+                <div class="small text-body-secondary">Meta 5-1-1: ≥ 1m 00s</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card contraction-stat-card h-100">
+            <div class="card-body text-center">
+                <div class="small text-body-secondary mb-1">Frequência Média (1h)</div>
+                <div id="stat-avg-frequency" class="fs-3 fw-bold text-primary">--</div>
+                <div class="small text-body-secondary">Início a Início (≤ 5m)</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card contraction-stat-card h-100">
+            <div class="card-body text-center">
+                <div class="small text-body-secondary mb-1">Descanso Médio (1h)</div>
+                <div id="stat-avg-rest" class="fs-3 fw-bold text-success">--</div>
+                <div class="small text-body-secondary">Entre contrações</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card contraction-stat-card h-100">
+            <div class="card-body text-center">
+                <div class="small text-body-secondary mb-1">Contrações na Última 1h</div>
+                <div id="stat-count-1h" class="fs-3 fw-bold text-warning">0</div>
+                <div class="small text-body-secondary">Ritmo contínuo</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Regra 5-1-1 Monitor -->
+    <div class="col-12">
+        <div id="rule-511-banner" class="rule-511-banner">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <div>
+                    <strong class="d-block">🐚 Monitor da Regra 5-1-1</strong>
+                    <span id="rule-511-text" class="small text-body-secondary">
+                        Registre contrações na última hora para avaliar se atingiram intervalos ≤ 5 min com duração ≥ 1 min por cerca de 1 hora.
+                    </span>
+                </div>
+                <span id="rule-511-badge" class="ocean-badge-pill">Aguardando registros</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contraction & Interval History -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <span>📋 Histórico de Contrações e Intervalos</span>
+                <div class="d-flex gap-2">
+                    <button id="btn-export-csv" type="button" class="btn btn-sm btn-outline-info">
+                        Exportar CSV
+                    </button>
+                    <button id="btn-clear-history" type="button" class="btn btn-sm btn-outline-danger">
+                        Limpar Histórico
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Início — Fim</th>
+                                <th>Duração</th>
+                                <th>Intensidade</th>
+                                <th>Descanso</th>
+                                <th>Frequência (Início a Início)</th>
+                                <th>Nota</th>
+                                <th class="text-end">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contraction-history-body">
+                            <tr>
+                                <td colspan="8" class="text-center py-4 text-body-secondary">
+                                    Nenhuma contração registrada ainda.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block javascript %}
+<script>
+(function () {
+    const API_URL = "{% url 'core:contraction-timer-api' %}";
+    const STORAGE_KEY = "babybuddy_contraction_state";
+    const INTENSITY_LABELS = {
+        mild: "🌊 Leve",
+        moderate: "🐋 Moderada",
+        strong: "⚡ Forte",
+    };
+
+    const elStage = document.getElementById("contraction-stage-card");
+    const elStatusLabel = document.getElementById("contraction-status-label");
+    const elSyncStatus = document.getElementById("contraction-sync-status");
+    const elClock = document.getElementById("contraction-clock");
+    const elSubtitle = document.getElementById("contraction-subtitle");
+    const elActiveControls = document.getElementById("contraction-active-controls");
+    const elNoteInput = document.getElementById("contraction-note-input");
+    const elBtnsBreak = document.getElementById("contraction-buttons-break");
+    const elBtnsContracting = document.getElementById("contraction-buttons-contracting");
+    const elBtnsResting = document.getElementById("contraction-buttons-resting");
+    const elHistoryBody = document.getElementById("contraction-history-body");
+
+    const elAvgDuration = document.getElementById("stat-avg-duration");
+    const elAvgFrequency = document.getElementById("stat-avg-frequency");
+    const elAvgRest = document.getElementById("stat-avg-rest");
+    const elCount1h = document.getElementById("stat-count-1h");
+    const elRuleBanner = document.getElementById("rule-511-banner");
+    const elRuleText = document.getElementById("rule-511-text");
+    const elRuleBadge = document.getElementById("rule-511-badge");
+
+    let state = {
+        status: "break",
+        active_start: null,
+        active_intensity: "moderate",
+        rest_start: null,
+        after_break: true,
+        history: [],
+        updated_at: 0,
+    };
+
+    function getCsrfToken() {
+        const input = document.querySelector("#contraction-csrf-form input[name='csrfmiddlewaretoken']");
+        return input ? input.value : "";
+    }
+
+    function formatClock(totalSeconds) {
+        const s = Math.max(0, Math.floor(totalSeconds));
+        const hrs = Math.floor(s / 3600);
+        const mins = Math.floor((s % 3600) / 60);
+        const secs = s % 60;
+        const mm = String(mins).padStart(2, "0");
+        const ss = String(secs).padStart(2, "0");
+        return hrs > 0 ? `${hrs}:${mm}:${ss}` : `${mm}:${ss}`;
+    }
+
+    function formatDurationWords(seconds) {
+        if (seconds === null || seconds === undefined) return "—";
+        const s = Math.max(0, Math.round(seconds));
+        const hrs = Math.floor(s / 3600);
+        const mins = Math.floor((s % 3600) / 60);
+        const secs = s % 60;
+        if (hrs > 0) return `${hrs}h ${mins}m`;
+        if (mins > 0) return `${mins}m ${String(secs).padStart(2, "0")}s`;
+        return `${secs}s`;
+    }
+
+    function formatTimeOfDay(ms) {
+        if (!ms) return "--:--";
+        return new Date(ms).toLocaleTimeString("pt-BR", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+        });
+    }
+
+    function saveLocalBackup(nextState) {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
+        } catch (err) {
+            // Ignore quota errors on private browsing
+        }
+    }
+
+    function loadLocalBackup() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (parsed && typeof parsed === "object") {
+                    state = parsed;
+                    renderAll();
+                }
+            }
+        } catch (err) {
+            // Ignore malformed cache
+        }
+    }
+
+    function updateClockOnly() {
+        const now = Date.now();
+        if (state.status === "contracting" && state.active_start) {
+            elClock.textContent = formatClock((now - state.active_start) / 1000);
+        } else if (state.status === "resting" && state.rest_start) {
+            elClock.textContent = formatClock((now - state.rest_start) / 1000);
+        } else {
+            elClock.textContent = "00:00";
+        }
+    }
+
+    function renderStage() {
+        elStage.classList.remove("state-break", "state-contracting", "state-resting");
+        elBtnsBreak.classList.add("d-none");
+        elBtnsContracting.classList.add("d-none");
+        elBtnsResting.classList.add("d-none");
+        elActiveControls.classList.add("d-none");
+
+        if (state.status === "contracting") {
+            elStage.classList.add("state-contracting");
+            elStatusLabel.textContent = "Contração em Andamento";
+            elSubtitle.textContent = "Respire fundo e acompanhe o tempo. Toque ao terminar.";
+            elBtnsContracting.classList.remove("d-none");
+            elActiveControls.classList.remove("d-none");
+        } else if (state.status === "resting") {
+            elStage.classList.add("state-resting");
+            elStatusLabel.textContent = "Descanso / Intervalo";
+            elSubtitle.textContent = "Contando o tempo de descanso até a próxima contração.";
+            elBtnsResting.classList.remove("d-none");
+        } else {
+            elStage.classList.add("state-break");
+            elStatusLabel.textContent = "Em Pausa — Pronto para Iniciar";
+            elSubtitle.textContent = "Toque no botão abaixo assim que sentir uma contração começar.";
+            elBtnsBreak.classList.remove("d-none");
+        }
+
+        document.querySelectorAll(".intensity-pill").forEach((btn) => {
+            btn.classList.toggle("active", btn.dataset.intensity === (state.active_intensity || "moderate"));
+        });
+
+        updateClockOnly();
+    }
+
+    function renderStatsAndRule() {
+        const now = Date.now();
+        const oneHourAgo = now - 3600 * 1000;
+        const recent = (state.history || []).filter((item) => item.start >= oneHourAgo);
+
+        elCount1h.textContent = String(recent.length);
+
+        if (recent.length === 0) {
+            elAvgDuration.textContent = "--";
+            elAvgFrequency.textContent = "--";
+            elAvgRest.textContent = "--";
+            elRuleBanner.classList.remove("rule-ready");
+            elRuleBadge.textContent = "Aguardando registros";
+            elRuleText.textContent =
+                "Registre contrações na última hora para avaliar se atingiram intervalos ≤ 5 min com duração ≥ 1 min por cerca de 1 hora.";
+            return;
+        }
+
+        const avgDur =
+            recent.reduce((acc, item) => acc + (Number(item.duration_sec) || 0), 0) / recent.length;
+        elAvgDuration.textContent = formatDurationWords(avgDur);
+
+        const freqItems = recent.filter((item) => item.frequency_sec !== null && item.frequency_sec !== undefined);
+        const avgFreq = freqItems.length
+            ? freqItems.reduce((acc, item) => acc + Number(item.frequency_sec), 0) / freqItems.length
+            : null;
+        elAvgFrequency.textContent = avgFreq !== null ? formatDurationWords(avgFreq) : "--";
+
+        const restItems = recent.filter((item) => item.rest_sec !== null && item.rest_sec !== undefined);
+        const avgRest = restItems.length
+            ? restItems.reduce((acc, item) => acc + Number(item.rest_sec), 0) / restItems.length
+            : null;
+        elAvgRest.textContent = avgRest !== null ? formatDurationWords(avgRest) : "--";
+
+        if (recent.length >= 4 && avgFreq !== null && avgFreq <= 300 && avgDur >= 60) {
+            elRuleBanner.classList.add("rule-ready");
+            elRuleBadge.textContent = "Padrão 5-1-1 Atingido";
+            elRuleText.textContent =
+                `Média na última hora: contrações de ${formatDurationWords(avgDur)} a cada ${formatDurationWords(avgFreq)}. Entre em contato com sua equipe médica / obstetra.`;
+        } else if (recent.length >= 2 && avgFreq !== null) {
+            elRuleBanner.classList.remove("rule-ready");
+            elRuleBadge.textContent = "Monitorando ritmo";
+            elRuleText.textContent =
+                `Última hora: ${recent.length} contrações com duração média de ${formatDurationWords(avgDur)} e frequência média de ${formatDurationWords(avgFreq)}.`;
+        } else {
+            elRuleBanner.classList.remove("rule-ready");
+            elRuleBadge.textContent = "Coletando dados (1h)";
+            elRuleText.textContent =
+                "Continue registrando as próximas contrações para calcular a frequência média de início a início.";
+        }
+    }
+
+    function renderHistory() {
+        const items = state.history || [];
+        elHistoryBody.innerHTML = "";
+
+        if (items.length === 0) {
+            const tr = document.createElement("tr");
+            const td = document.createElement("td");
+            td.colSpan = 8;
+            td.className = "text-center py-4 text-body-secondary";
+            td.textContent = "Nenhuma contração registrada ainda.";
+            tr.appendChild(td);
+            elHistoryBody.appendChild(tr);
+            return;
+        }
+
+        items.forEach((item, idx) => {
+            const tr = document.createElement("tr");
+
+            const tdNum = document.createElement("td");
+            tdNum.textContent = String(items.length - idx);
+            tr.appendChild(tdNum);
+
+            const tdTime = document.createElement("td");
+            tdTime.textContent = `${formatTimeOfDay(item.start)} — ${formatTimeOfDay(item.end)}`;
+            tr.appendChild(tdTime);
+
+            const tdDur = document.createElement("td");
+            const durStrong = document.createElement("strong");
+            durStrong.textContent = formatDurationWords(item.duration_sec);
+            tdDur.appendChild(durStrong);
+            tr.appendChild(tdDur);
+
+            const tdInt = document.createElement("td");
+            tdInt.textContent = INTENSITY_LABELS[item.intensity] || INTENSITY_LABELS.moderate;
+            tr.appendChild(tdInt);
+
+            const tdRest = document.createElement("td");
+            tdRest.textContent = item.after_break && item.rest_sec === null
+                ? "Após pausa"
+                : formatDurationWords(item.rest_sec);
+            tr.appendChild(tdRest);
+
+            const tdFreq = document.createElement("td");
+            tdFreq.textContent = formatDurationWords(item.frequency_sec);
+            tr.appendChild(tdFreq);
+
+            const tdNote = document.createElement("td");
+            tdNote.className = "small text-body-secondary";
+            tdNote.textContent = item.note || "—";
+            tr.appendChild(tdNote);
+
+            const tdAction = document.createElement("td");
+            tdAction.className = "text-end";
+            const delBtn = document.createElement("button");
+            delBtn.type = "button";
+            delBtn.className = "btn btn-sm btn-outline-danger";
+            delBtn.textContent = "Excluir";
+            delBtn.addEventListener("click", () => sendAction("delete_item", { id: item.id }));
+            tdAction.appendChild(delBtn);
+            tr.appendChild(tdAction);
+
+            elHistoryBody.appendChild(tr);
+        });
+    }
+
+    function renderAll() {
+        renderStage();
+        renderStatsAndRule();
+        renderHistory();
+    }
+
+    async function sendAction(action, extra = {}) {
+        try {
+            const res = await fetch(API_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCsrfToken(),
+                },
+                body: JSON.stringify({ action, ...extra }),
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const nextState = await res.json();
+            state = nextState;
+            saveLocalBackup(state);
+            elSyncStatus.textContent = `Sincronizado às ${formatTimeOfDay(Date.now())}`;
+            renderAll();
+        } catch (err) {
+            elSyncStatus.textContent = "Falha de conexão ao sincronizar — tentando novamente...";
+        }
+    }
+
+    async function pollState() {
+        try {
+            const res = await fetch(API_URL, { cache: "no-store" });
+            if (!res.ok) return;
+            const nextState = await res.json();
+            if (nextState.updated_at !== state.updated_at || nextState.status !== state.status) {
+                state = nextState;
+                saveLocalBackup(state);
+                renderAll();
+            }
+            elSyncStatus.textContent = `Sincronizado às ${formatTimeOfDay(Date.now())}`;
+        } catch (err) {
+            // Silent retry on next poll interval
+        }
+    }
+
+    function exportCsv() {
+        const items = state.history || [];
+        if (!items.length) return;
+        const header = ["Numero", "Inicio", "Fim", "Duracao_seg", "Intensidade", "Descanso_seg", "Frequencia_seg", "Nota"];
+        const rows = items.map((item, idx) => [
+            items.length - idx,
+            new Date(item.start).toISOString(),
+            new Date(item.end).toISOString(),
+            item.duration_sec ?? "",
+            item.intensity ?? "moderate",
+            item.rest_sec ?? "",
+            item.frequency_sec ?? "",
+            `"${String(item.note || "").replace(/"/g, '""')}"`,
+        ]);
+        const csv = [header.join(","), ...rows.map((r) => r.join(","))].join("\n");
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `contracoes-${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    document.getElementById("btn-start-contraction").addEventListener("click", () => {
+        sendAction("start_contraction", { intensity: state.active_intensity || "moderate" });
+    });
+
+    document.getElementById("btn-next-contraction").addEventListener("click", () => {
+        sendAction("start_contraction", { intensity: state.active_intensity || "moderate" });
+    });
+
+    document.getElementById("btn-end-contraction").addEventListener("click", () => {
+        const note = elNoteInput.value.trim();
+        elNoteInput.value = "";
+        sendAction("end_contraction", {
+            intensity: state.active_intensity || "moderate",
+            note,
+        });
+    });
+
+    document.getElementById("btn-cancel-contraction").addEventListener("click", () => {
+        elNoteInput.value = "";
+        sendAction("take_break");
+    });
+
+    document.getElementById("btn-take-break").addEventListener("click", () => {
+        sendAction("take_break");
+    });
+
+    document.getElementById("btn-clear-history").addEventListener("click", () => {
+        if (confirm("Deseja realmente limpar todo o histórico de contrações?")) {
+            sendAction("clear_history");
+        }
+    });
+
+    document.getElementById("btn-export-csv").addEventListener("click", exportCsv);
+
+    document.querySelectorAll(".intensity-pill").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const intensity = btn.dataset.intensity;
+            state.active_intensity = intensity;
+            renderStage();
+            sendAction("set_intensity", { intensity });
+        });
+    });
+
+    loadLocalBackup();
+    pollState();
+    setInterval(updateClockOnly, 250);
+    setInterval(pollState, 3000);
+})();
+</script>
+{% endblock %}

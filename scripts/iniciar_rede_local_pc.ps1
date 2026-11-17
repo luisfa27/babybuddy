@@ -26,4 +26,4 @@ Write-Host "==================================================" -ForegroundColor
 Write-Host "  Obs.: Se o celular nao conectar, libere a porta 8000 no Firewall do Windows." -ForegroundColor Yellow
 Write-Host ""
 
-& $PythonExe manage.py runserver 0.0.0.0:8000
+& $PythonExe manage.py runserver 0.0.0.0:8000 --noreload

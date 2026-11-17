@@ -23,11 +23,14 @@ echo "[3/6] Instalando dependencias Python (sem psycopg2)..."
 pip install --upgrade pip
 pip install -r requirements-tablet.txt
 
-echo "[4/6] Configurando arquivo .env..."
+echo "[4/6] Configurando arquivo .env com SECRET_KEY segura..."
 if [ ! -f ".env" ]; then
-    cat > .env << 'EOF'
+    GENERATED_KEY=$(python -c "import secrets; print(secrets.token_urlsafe(50))")
+    cat > .env << EOF
 DJANGO_SETTINGS_MODULE=babybuddy.settings.development
-DEBUG=True
+DEBUG=False
+SERVE_MEDIA=True
+SECRET_KEY=${GENERATED_KEY}
 ALLOWED_HOSTS=*
 LANGUAGE_CODE=pt-BR
 TIME_ZONE=America/Sao_Paulo

@@ -1,13 +1,21 @@
 # -*- coding: utf-8 -*-
+import json
+import os
+import threading
+import time
+import uuid
+
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Count
 from django.db.models.functions import Lower
 from django.forms import Form, ValidationError
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from django.views import View
 from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
@@ -651,3 +659,161 @@ class WeightDelete(CoreDeleteView):
     model = models.Weight
     permission_required = ("core.delete_weight",)
     success_url = reverse_lazy("core:weight-list")
+
+
+_CONTRACTION_LOCK = threading.Lock()
+_VALID_INTENSITIES = ("mild", "moderate", "strong")
+
+
+def _default_contraction_state():
+    return {
+        "status": "break",
+        "active_start": None,
+        "active_intensity": "moderate",
+        "rest_start": None,
+        "after_break": True,
+        "history": [],
+        "updated_at": 0,
+    }
+
+
+def _contraction_file_path():
+    return os.path.join(settings.BASE_DIR, "data", "contractions.json")
+
+
+def _load_contraction_state():
+    path = _contraction_file_path()
+    default_state = _default_contraction_state()
+    if not os.path.exists(path):
+        return default_state
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            loaded = json.load(fh)
+        if not isinstance(loaded, dict):
+            return default_state
+        for key, value in default_state.items():
+            loaded.setdefault(key, value)
+        if not isinstance(loaded.get("history"), list):
+            loaded["history"] = []
+        return loaded
+    except (OSError, json.JSONDecodeError):
+        return default_state
+
+
+def _save_contraction_state(state):
+    path = _contraction_file_path()
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    tmp_path = f"{path}.tmp"
+    with open(tmp_path, "w", encoding="utf-8") as fh:
+        json.dump(state, fh, ensure_ascii=False, indent=2)
+    os.replace(tmp_path, path)
+
+
+def _clean_intensity(value):
+    return value if value in _VALID_INTENSITIES else "moderate"
+
+
+class ContractionTimer(LoginRequiredMixin, TemplateView):
+    """Render the ocean-themed labor contraction timer inspired by petewritescode/contraction-timer."""
+
+    template_name = "core/contractions.html"
+
+
+class ContractionTimerAPI(LoginRequiredMixin, View):
+    """JSON endpoint to synchronize contraction timer state across Android, iPhone, and Tablet."""
+
+    def get(self, request):
+        with _CONTRACTION_LOCK:
+            state = _load_contraction_state()
+        return JsonResponse(state)
+
+    def post(self, request):
+        try:
+            payload = json.loads(request.body.decode("utf-8") or "{}")
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            return JsonResponse({"error": "Invalid JSON payload"}, status=400)
+
+        action = payload.get("action")
+        now_ms = int(time.time() * 1000)
+
+        with _CONTRACTION_LOCK:
+            state = _load_contraction_state()
+
+            if action == "start_contraction":
+                if state.get("status") != "contracting":
+                    if state["history"] and not state.get("after_break", True):
+                        last_entry = state["history"][0]
+                        last_entry["rest_sec"] = max(
+                            0, round((now_ms - int(last_entry["end"])) / 1000)
+                        )
+                        last_entry["frequency_sec"] = max(
+                            0, round((now_ms - int(last_entry["start"])) / 1000)
+                        )
+                    state["status"] = "contracting"
+                    state["active_start"] = now_ms
+                    state["active_intensity"] = _clean_intensity(
+                        payload.get("intensity", state.get("active_intensity"))
+                    )
+                    state["rest_start"] = None
+
+            elif action == "end_contraction":
+                if state.get("status") == "contracting" and state.get("active_start"):
+                    start_ms = int(state["active_start"])
+                    duration_sec = max(1, round((now_ms - start_ms) / 1000))
+                    intensity = _clean_intensity(
+                        payload.get("intensity") or state.get("active_intensity")
+                    )
+                    note = str(payload.get("note") or "").strip()[:200]
+                    entry = {
+                        "id": uuid.uuid4().hex[:10],
+                        "start": start_ms,
+                        "end": now_ms,
+                        "duration_sec": duration_sec,
+                        "rest_sec": None,
+                        "frequency_sec": None,
+                        "intensity": intensity,
+                        "note": note,
+                        "after_break": bool(state.get("after_break", True)),
+                    }
+                    state["history"].insert(0, entry)
+                    state["history"] = state["history"][:200]
+                state["status"] = "resting"
+                state["active_start"] = None
+                state["rest_start"] = now_ms
+                state["after_break"] = False
+
+            elif action == "take_break":
+                state["status"] = "break"
+                state["active_start"] = None
+                state["rest_start"] = None
+                state["after_break"] = True
+
+            elif action == "set_intensity":
+                intensity = _clean_intensity(payload.get("intensity"))
+                state["active_intensity"] = intensity
+                target_id = payload.get("id")
+                if target_id:
+                    for item in state["history"]:
+                        if item.get("id") == target_id:
+                            item["intensity"] = intensity
+                            break
+
+            elif action == "delete_item":
+                target_id = payload.get("id")
+                if target_id:
+                    state["history"] = [
+                        item for item in state["history"] if item.get("id") != target_id
+                    ]
+                    if not state["history"]:
+                        state["after_break"] = True
+
+            elif action == "clear_history":
+                state = _default_contraction_state()
+
+            else:
+                return JsonResponse({"error": "Unknown action"}, status=400)
+
+            state["updated_at"] = now_ms
+            _save_contraction_state(state)
+
+        return JsonResponse(state)
