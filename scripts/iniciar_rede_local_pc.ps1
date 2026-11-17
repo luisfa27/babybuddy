@@ -1,4 +1,4 @@
-﻿$ProjectRoot = Split-Path -Parent $PSScriptRoot
+$ProjectRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $ProjectRoot
 
 $PythonExe = Join-Path $ProjectRoot ".venv\Scripts\python.exe"
