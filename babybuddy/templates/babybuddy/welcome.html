@@ -7,9 +7,16 @@
     <li class="breadcrumb-item active" aria-current="page">{% trans "Welcome!" %}</li>
 {% endblock %}
 {% block content %}
-    <div class="px-2 py-5 bg rounded-3">
+    <div class="px-3 py-5 bg rounded-4">
         <div class="container-fluid">
-            <h1 class="display-3">{% trans "Welcome to Baby Buddy!" %}</h1>
+            <span class="ocean-badge-pill mb-3">
+                <svg width="18" height="18" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+                    <path d="M4 20 C4 11 13 7 23 9 C29 10 33 16 33 21 C33 25 26 28 16 28 C8 28 4 24 4 20 Z" fill="#38bdf8" />
+                    <circle cx="11" cy="18" r="1.6" fill="#041224" />
+                </svg>
+                Ocean Edition
+            </span>
+            <h1 class="display-4 fw-bold">{% trans "Welcome to Baby Buddy!" %}</h1>
             <p class="lead">
                 {% blocktrans trimmed %}
                     Learn about and predict baby's needs without (<em>as much</em>)

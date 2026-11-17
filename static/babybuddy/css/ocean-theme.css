@@ -1,0 +1,597 @@
+/* ==========================================================================
+   Baby Buddy — Deep Ocean Theme (Sea Blue & Marine Creatures)
+   Designed for soothing night-time use on Android, iPhone, Tablet & Desktop
+   ========================================================================== */
+
+:root {
+  --ocean-abyss: #041224;
+  --ocean-deep: #071f3b;
+  --ocean-mid: #0c315a;
+  --ocean-surface: #12497b;
+  --ocean-card-bg: rgba(10, 36, 68, 0.74);
+  --ocean-card-hover: rgba(15, 50, 92, 0.86);
+  --ocean-card-border: rgba(72, 202, 228, 0.24);
+  --ocean-aqua: #38bdf8;
+  --ocean-cyan: #48cae4;
+  --ocean-foam: #90e0ef;
+  --ocean-coral: #fb7185;
+  --ocean-starfish: #fbbf24;
+  --ocean-kelp: #34d399;
+  --ocean-lavender: #a78bfa;
+  --ocean-text: #f0f9ff;
+  --ocean-text-muted: #94bde0;
+
+  /* Override Bootstrap 5.3 CSS variables for consistent sea-blue integration */
+  --bs-body-bg: #071f3b;
+  --bs-body-color: #f0f9ff;
+  --bs-secondary-color: #94bde0;
+  --bs-border-color: rgba(72, 202, 228, 0.22);
+  --bs-primary: #38bdf8;
+  --bs-primary-rgb: 56, 189, 248;
+  --bs-link-color: #7dd3fc;
+  --bs-link-hover-color: #bae6fd;
+  --bs-card-bg: rgba(10, 36, 68, 0.74);
+  --bs-card-border-color: rgba(72, 202, 228, 0.24);
+}
+
+html {
+  min-height: 100%;
+  background-color: var(--ocean-abyss);
+}
+
+body {
+  min-height: 100vh;
+  position: relative;
+  color: var(--ocean-text);
+  background: radial-gradient(circle at 50% -10%, rgba(56, 189, 248, 0.22) 0%, transparent 55%),
+    linear-gradient(180deg, #061a33 0%, #09264a 38%, #0b3563 72%, #05162b 100%);
+  background-attachment: fixed;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Keep interactive app UI layered cleanly above the decorative ocean background */
+nav.navbar,
+nav[aria-label="breadcrumb"],
+.container-fluid,
+.container,
+[id^="view-"],
+.modal,
+.dropdown-menu {
+  position: relative;
+  z-index: 2;
+}
+
+/* ==========================================================================
+   Decorative Ocean Scene Background (Whale, Dolphin, Squid, Starfish, Coral)
+   ========================================================================== */
+
+.ocean-scene {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.ocean-rays {
+  position: absolute;
+  top: -15%;
+  left: -10%;
+  width: 120%;
+  height: 65%;
+  background: conic-gradient(
+    from 180deg at 50% 0%,
+    transparent 0deg,
+    rgba(144, 224, 239, 0.06) 14deg,
+    transparent 26deg,
+    rgba(56, 189, 248, 0.05) 38deg,
+    transparent 52deg,
+    rgba(144, 224, 239, 0.04) 68deg,
+    transparent 85deg
+  );
+  filter: blur(8px);
+  opacity: 0.9;
+}
+
+.ocean-whale {
+  position: absolute;
+  top: 10%;
+  left: -2%;
+  width: clamp(190px, 24vw, 330px);
+  opacity: 0.24;
+  animation: oceanFloatSlow 18s ease-in-out infinite;
+}
+
+.ocean-dolphin {
+  position: absolute;
+  top: 18%;
+  right: 3%;
+  width: clamp(120px, 15vw, 210px);
+  opacity: 0.24;
+  animation: oceanSwimDolphin 14s ease-in-out infinite;
+}
+
+.ocean-squid {
+  position: absolute;
+  bottom: 18%;
+  right: 5%;
+  width: clamp(95px, 12vw, 165px);
+  opacity: 0.25;
+  animation: oceanPulseSquid 11s ease-in-out infinite;
+}
+
+.ocean-turtle {
+  position: absolute;
+  top: 52%;
+  left: 3%;
+  width: clamp(85px, 11vw, 150px);
+  opacity: 0.2;
+  animation: oceanFloatSlow 16s ease-in-out infinite reverse;
+}
+
+.ocean-starfish-left {
+  position: absolute;
+  bottom: 24px;
+  left: 6%;
+  width: clamp(46px, 6vw, 76px);
+  opacity: 0.34;
+  animation: oceanTwinkleStar 7s ease-in-out infinite;
+}
+
+.ocean-starfish-right {
+  position: absolute;
+  bottom: 34px;
+  right: 18%;
+  width: clamp(38px, 5vw, 64px);
+  opacity: 0.3;
+  animation: oceanTwinkleStar 9s ease-in-out infinite 1.5s;
+}
+
+.ocean-waves-bottom {
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: clamp(90px, 15vh, 175px);
+  opacity: 0.42;
+}
+
+.ocean-bubbles {
+  position: absolute;
+  inset: 0;
+}
+
+.ocean-bubble {
+  position: absolute;
+  bottom: -40px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(224, 242, 254, 0.55), rgba(56, 189, 248, 0.12));
+  border: 1px solid rgba(186, 230, 253, 0.32);
+  animation: oceanBubbleRise linear infinite;
+}
+
+.ocean-bubble.b1 { left: 8%; width: 12px; height: 12px; animation-duration: 15s; animation-delay: 0s; }
+.ocean-bubble.b2 { left: 22%; width: 8px; height: 8px; animation-duration: 12s; animation-delay: 3s; }
+.ocean-bubble.b3 { left: 37%; width: 14px; height: 14px; animation-duration: 18s; animation-delay: 1s; }
+.ocean-bubble.b4 { left: 54%; width: 9px; height: 9px; animation-duration: 13s; animation-delay: 5s; }
+.ocean-bubble.b5 { left: 71%; width: 16px; height: 16px; animation-duration: 20s; animation-delay: 2s; }
+.ocean-bubble.b6 { left: 86%; width: 10px; height: 10px; animation-duration: 14s; animation-delay: 4s; }
+.ocean-bubble.b7 { left: 93%; width: 7px; height: 7px; animation-duration: 11s; animation-delay: 6s; }
+
+@keyframes oceanFloatSlow {
+  0%, 100% { transform: translateY(0px) translateX(0px) rotate(-1deg); }
+  50% { transform: translateY(-16px) translateX(14px) rotate(2deg); }
+}
+
+@keyframes oceanSwimDolphin {
+  0%, 100% { transform: translateY(0px) translateX(0px) rotate(3deg); }
+  50% { transform: translateY(-14px) translateX(-16px) rotate(-4deg); }
+}
+
+@keyframes oceanPulseSquid {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-18px) scale(1.04); }
+}
+
+@keyframes oceanTwinkleStar {
+  0%, 100% { transform: rotate(0deg) scale(1); opacity: 0.32; }
+  50% { transform: rotate(8deg) scale(1.06); opacity: 0.48; }
+}
+
+@keyframes oceanBubbleRise {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  12% { opacity: 0.55; }
+  85% { opacity: 0.4; }
+  100% { transform: translateY(-105vh) translateX(18px); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ocean-whale,
+  .ocean-dolphin,
+  .ocean-squid,
+  .ocean-turtle,
+  .ocean-starfish-left,
+  .ocean-starfish-right,
+  .ocean-bubble {
+    animation: none !important;
+  }
+}
+
+/* ==========================================================================
+   Navbar & Breadcrumbs (Frosted Sea Glass)
+   ========================================================================== */
+
+.navbar.bg-dark {
+  background: rgba(5, 22, 43, 0.84) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(72, 202, 228, 0.22);
+  box-shadow: 0 6px 24px rgba(2, 10, 24, 0.4);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.navbar .nav-link,
+.navbar .navbar-brand {
+  color: var(--ocean-text) !important;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-item.active .nav-link {
+  color: var(--ocean-cyan) !important;
+}
+
+nav[aria-label="breadcrumb"] {
+  background: rgba(9, 34, 64, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(72, 202, 228, 0.14);
+  margin-bottom: 1rem;
+}
+
+.breadcrumb {
+  background: transparent !important;
+  margin-bottom: 0 !important;
+  padding: 0.65rem 1.25rem;
+}
+
+.breadcrumb-item,
+.breadcrumb-item a {
+  color: var(--ocean-foam);
+  text-decoration: none;
+}
+
+.breadcrumb-item.active {
+  color: var(--ocean-text-muted);
+}
+
+/* ==========================================================================
+   Ocean Quick-Action Grid (Inspired by Reference Mobile App UI)
+   ========================================================================== */
+
+.ocean-hero-banner {
+  background: linear-gradient(135deg, rgba(14, 56, 102, 0.84) 0%, rgba(8, 35, 68, 0.88) 100%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(72, 202, 228, 0.28);
+  border-radius: 22px;
+  padding: 1.15rem 1.35rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 12px 30px rgba(2, 10, 24, 0.42);
+}
+
+.ocean-hero-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.ocean-hero-title {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ocean-text);
+}
+
+.ocean-hero-subtitle {
+  font-size: 0.86rem;
+  color: var(--ocean-text-muted);
+  margin: 0;
+}
+
+.ocean-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+@media (min-width: 576px) {
+  .ocean-quick-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1200px) {
+  .ocean-quick-grid {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+}
+
+.ocean-action-tile {
+  background: rgba(12, 43, 80, 0.78);
+  border: 1px solid rgba(72, 202, 228, 0.24);
+  border-radius: 18px;
+  padding: 0.9rem 0.65rem;
+  text-align: center;
+  text-decoration: none;
+  color: var(--ocean-text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  min-height: 108px;
+}
+
+.ocean-action-tile:hover,
+.ocean-action-tile:focus-visible {
+  background: rgba(20, 64, 115, 0.9);
+  border-color: rgba(144, 224, 239, 0.55);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 180, 216, 0.22);
+  outline: none;
+}
+
+.ocean-tile-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(144, 224, 239, 0.24);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.ocean-tile-icon.tone-sleep { background: rgba(99, 102, 241, 0.22); border-color: rgba(165, 180, 252, 0.35); }
+.ocean-tile-icon.tone-feeding { background: rgba(56, 189, 248, 0.22); border-color: rgba(125, 211, 252, 0.38); }
+.ocean-tile-icon.tone-bottle { background: rgba(34, 211, 238, 0.22); border-color: rgba(103, 232, 249, 0.38); }
+.ocean-tile-icon.tone-diaper { background: rgba(52, 211, 153, 0.22); border-color: rgba(110, 231, 183, 0.38); }
+.ocean-tile-icon.tone-pumping { background: rgba(167, 139, 250, 0.22); border-color: rgba(196, 181, 253, 0.38); }
+.ocean-tile-icon.tone-tummy { background: rgba(251, 191, 36, 0.2); border-color: rgba(253, 224, 71, 0.36); }
+.ocean-tile-icon.tone-meds { background: rgba(251, 113, 133, 0.22); border-color: rgba(253, 164, 175, 0.38); }
+.ocean-tile-icon.tone-timer { background: rgba(45, 212, 191, 0.22); border-color: rgba(94, 234, 212, 0.38); }
+
+.ocean-tile-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.ocean-tile-sub {
+  font-size: 0.74rem;
+  color: var(--ocean-text-muted);
+  line-height: 1.15;
+}
+
+/* ==========================================================================
+   Cards, Dashboard Tiles & Activity Category Accents
+   ========================================================================== */
+
+.card,
+.card-dashboard {
+  background: var(--ocean-card-bg) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--ocean-card-border) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 12px 28px rgba(2, 10, 24, 0.45);
+  overflow: hidden;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(72, 202, 228, 0.44) !important;
+  box-shadow: 0 16px 34px rgba(2, 10, 24, 0.56);
+}
+
+.card-header {
+  background: rgba(14, 49, 89, 0.55) !important;
+  border-bottom: 1px solid rgba(72, 202, 228, 0.16) !important;
+  font-weight: 600;
+  padding: 0.85rem 1.15rem;
+  color: var(--ocean-text) !important;
+}
+
+.card-header a {
+  color: var(--ocean-foam);
+  text-decoration: none;
+}
+
+.card-header a:hover {
+  color: #ffffff;
+}
+
+.card-body {
+  padding: 1.1rem 1.2rem;
+}
+
+.card-sleep { border-top: 3px solid #818cf8 !important; }
+.card-feeding, .card-breastfeeding { border-top: 3px solid #38bdf8 !important; }
+.card-diaperchange { border-top: 3px solid #34d399 !important; }
+.card-tummytime { border-top: 3px solid #fbbf24 !important; }
+.card-pumping { border-top: 3px solid #a78bfa !important; }
+.card-medication { border-top: 3px solid #fb7185 !important; }
+.card-timer { border-top: 3px solid #2dd4bf !important; }
+
+.child-photo {
+  border-radius: 18px 18px 0 0;
+  object-fit: cover;
+}
+
+.child-actions {
+  background: rgba(6, 25, 48, 0.65) !important;
+  border-color: rgba(72, 202, 228, 0.25) !important;
+  border-radius: 14px !important;
+}
+
+.child-actions .btn {
+  color: var(--ocean-foam);
+}
+
+.child-actions .btn:hover {
+  background: rgba(56, 189, 248, 0.2);
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   Buttons, Forms, Lists, Tables & Modals
+   ========================================================================== */
+
+.btn {
+  border-radius: 12px;
+  font-weight: 600;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #0096c7 0%, #00b4d8 100%) !important;
+  border: none !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(0, 180, 216, 0.35);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #0d9488 0%, #10b981 100%) !important;
+  border: none !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+}
+
+.form-control,
+.form-select,
+.input-group-text {
+  background-color: rgba(6, 24, 46, 0.78) !important;
+  border: 1px solid rgba(72, 202, 228, 0.28) !important;
+  color: var(--ocean-text) !important;
+  border-radius: 12px;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--ocean-aqua) !important;
+  box-shadow: 0 0 0 0.2rem rgba(56, 189, 248, 0.25) !important;
+}
+
+.form-control::placeholder {
+  color: rgba(148, 189, 224, 0.65);
+}
+
+.list-group-item {
+  background: rgba(8, 30, 58, 0.62) !important;
+  border-color: rgba(72, 202, 228, 0.14) !important;
+  color: var(--ocean-text) !important;
+}
+
+.list-group-item-action:hover {
+  background: rgba(16, 54, 98, 0.8) !important;
+}
+
+.table {
+  --bs-table-bg: transparent;
+  --bs-table-striped-bg: rgba(14, 49, 89, 0.32);
+  --bs-table-hover-bg: rgba(56, 189, 248, 0.12);
+  --bs-table-border-color: rgba(72, 202, 228, 0.16);
+  color: var(--ocean-text);
+}
+
+.dropdown-menu {
+  background: rgba(6, 25, 48, 0.94) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(72, 202, 228, 0.28) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 14px 32px rgba(2, 10, 24, 0.65);
+  padding: 0.45rem;
+}
+
+.dropdown-item {
+  color: var(--ocean-text) !important;
+  border-radius: 10px;
+}
+
+.dropdown-item:hover,
+.dropdown-item.active {
+  background: rgba(56, 189, 248, 0.22) !important;
+  color: #ffffff !important;
+}
+
+.bg,
+.bg-faded,
+.jumbotron {
+  background: rgba(10, 36, 68, 0.72) !important;
+  border: 1px solid rgba(72, 202, 228, 0.22);
+  border-radius: 18px;
+}
+
+.text-body-secondary,
+.text-muted,
+.text-secondary {
+  color: var(--ocean-text-muted) !important;
+}
+
+/* Login & Registration wrapper card */
+.ocean-auth-shell {
+  max-width: 440px;
+  margin: 2rem auto;
+  background: rgba(8, 30, 58, 0.8);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(72, 202, 228, 0.28);
+  border-radius: 24px;
+  box-shadow: 0 20px 44px rgba(2, 10, 24, 0.55);
+}
+
+.ocean-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ocean-foam);
+  background: rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(144, 224, 239, 0.28);
+}
+
+/* Mobile touch ergonomics */
+@media (max-width: 767.98px) {
+  .container-fluid {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .card-body {
+    padding: 0.95rem 1rem;
+  }
+}

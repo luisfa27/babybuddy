@@ -5,10 +5,13 @@ from .base import *
 
 ALLOWED_HOSTS = [
     x.strip()
-    for x in os.environ.get("ALLOWED_HOSTS", "127.0.0.1,localhost,::1").split(",")
+    for x in os.environ.get("ALLOWED_HOSTS", "*").split(",")
+    if x.strip()
 ]
 SECRET_KEY = os.environ.get("SECRET_KEY") or "DEVELOPMENT!!"
 DEBUG = bool(strtobool(os.environ.get("DEBUG") or "True"))
+LANGUAGE_CODE = os.environ.get("LANGUAGE_CODE", "pt-BR")
+TIME_ZONE = os.environ.get("TIME_ZONE", "America/Sao_Paulo")
 
 
 # Static files (CSS, JavaScript, Images)

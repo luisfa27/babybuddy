@@ -1,0 +1,151 @@
+{% load i18n %}
+{% get_current_language as CURRENT_LANG %}
+{% with child_param=object.slug|default:"" is_pt=CURRENT_LANG|slice:":2" %}
+<section class="ocean-hero-banner" aria-label="{% if is_pt == 'pt' %}Ações Rápidas{% else %}{% trans 'Quick Actions' %}{% endif %}">
+    <div class="ocean-hero-header">
+        <div>
+            <h2 class="ocean-hero-title">
+                <svg width="26" height="26" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+                    <path d="M4 20 C4 11 13 7 23 9 C29 10 33 16 33 21 C33 25 26 28 16 28 C8 28 4 24 4 20 Z" fill="#38bdf8" />
+                    <path d="M29 19 C32 15 35 15 35 18 C34 20 32 21 30 22 C32 23 34 25 35 27 C32 27 30 25 28 23 Z" fill="#7dd3fc" />
+                    <circle cx="11" cy="18" r="1.6" fill="#041224" />
+                    <path d="M15 8 C14 4 11 3 10 5" stroke="#bae6fd" stroke-width="1.8" stroke-linecap="round" />
+                    <path d="M17 8 C18 4 21 3 22 5" stroke="#bae6fd" stroke-width="1.8" stroke-linecap="round" />
+                </svg>
+                {% if object and object.slug %}
+                    {{ object }} — {% if is_pt == 'pt' %}Ações Rápidas{% else %}{% trans "Quick Actions" %}{% endif %}
+                {% else %}
+                    {% if is_pt == 'pt' %}Ações Rápidas{% else %}{% trans "Quick Actions" %}{% endif %}
+                {% endif %}
+            </h2>
+            <p class="ocean-hero-subtitle">
+                {% if is_pt == 'pt' %}
+                    Toque em uma atividade para registrar ou iniciar o acompanhamento em segundos nos seus aparelhos.
+                {% else %}
+                    {% trans "Tap an activity to log or start tracking in seconds across all devices." %}
+                {% endif %}
+            </p>
+        </div>
+        {% if perms.core.view_timeline %}
+            <a href="{% url 'core:timeline' %}" class="btn btn-sm btn-primary">
+                <i class="icon-timeline" aria-hidden="true"></i> {% trans "Timeline" %}
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="ocean-quick-grid">
+        {% if perms.core.add_sleep %}
+            <a class="ocean-action-tile"
+               href="{% url 'core:sleep-add' %}{% if child_param %}?child={{ child_param }}{% endif %}">
+                <span class="ocean-tile-icon tone-sleep">
+                    <svg width="26" height="26" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                        <path d="M19.5 17.5A7.5 7.5 0 0 1 10.5 8.5a7.5 7.5 0 1 0 9 9Z" fill="#a5b4fc" />
+                        <circle cx="20" cy="7" r="1.3" fill="#fde68a" />
+                        <circle cx="23" cy="11" r="1" fill="#fde68a" />
+                    </svg>
+                </span>
+                <span class="ocean-tile-title">{% if is_pt == 'pt' %}Sono{% else %}{% trans "Sleep" %}{% endif %}</span>
+                <span class="ocean-tile-sub">{% if is_pt == 'pt' %}Soneca / Noite{% else %}Nap / Night{% endif %}</span>
+            </a>
+        {% endif %}
+
+        {% if perms.core.add_feeding %}
+            <a class="ocean-action-tile"
+               href="{% url 'core:feeding-add' %}{% if child_param %}?child={{ child_param }}{% endif %}">
+                <span class="ocean-tile-icon tone-feeding">
+                    <svg width="26" height="26" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                        <path d="M5 17 C5 11 10 8 16 9 C20 10 23 13 24 16 C22 20 17 22 11 22 C7 22 5 20 5 17 Z" fill="#7dd3fc" />
+                        <circle cx="10" cy="15" r="1.4" fill="#041224" />
+                        <path d="M13 20 C16 22 20 21 22 18" stroke="#e0f2fe" stroke-width="1.6" stroke-linecap="round" />
+                    </svg>
+                </span>
+                <span class="ocean-tile-title">{% if is_pt == 'pt' %}Amamentação{% else %}{% trans "Feeding" %}{% endif %}</span>
+                <span class="ocean-tile-sub">{% if is_pt == 'pt' %}Peito / Sólidos{% else %}Breast / Solids{% endif %}</span>
+            </a>
+
+            <a class="ocean-action-tile"
+               href="{% url 'core:bottle-feeding-add' %}{% if child_param %}?child={{ child_param }}{% endif %}">
+                <span class="ocean-tile-icon tone-bottle">
+                    <svg width="26" height="26" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                        <rect x="11" y="4" width="6" height="3" rx="1.5" fill="#bae6fd" />
+                        <path d="M9 10 C9 8.5 10.5 7 12 7 H16 C17.5 7 19 8.5 19 10 V21 C19 22.7 17.7 24 16 24 H12 C10.3 24 9 22.7 9 21 V10 Z" fill="#38bdf8" fill-opacity="0.85" />
+                        <path d="M10 16 H18 V21 C18 22.1 17.1 23 16 23 H12 C10.9 23 10 22.1 10 21 V16 Z" fill="#e0f2fe" fill-opacity="0.7" />
+                    </svg>
+                </span>
+                <span class="ocean-tile-title">{% if is_pt == 'pt' %}Mamadeira{% else %}{% trans "Bottle Feeding" %}{% endif %}</span>
+                <span class="ocean-tile-sub">{% if is_pt == 'pt' %}Registro Rápido{% else %}Quick Bottle{% endif %}</span>
+            </a>
+        {% endif %}
+
+        {% if perms.core.add_diaperchange %}
+            <a class="ocean-action-tile"
+               href="{% url 'core:diaperchange-add' %}{% if child_param %}?child={{ child_param }}{% endif %}">
+                <span class="ocean-tile-icon tone-diaper">
+                    <svg width="26" height="26" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                        <path d="M5 18 C5 11 9 7 14 7 C19 7 23 11 23 18 C20 20 17 21 14 21 C11 21 8 20 5 18 Z" fill="#6ee7b7" />
+                        <circle cx="14" cy="17" r="2.2" fill="#ecfdf5" />
+                        <path d="M10 10 L12 16 M14 9 V15 M18 10 L16 16" stroke="#065f46" stroke-width="1.3" stroke-linecap="round" />
+                    </svg>
+                </span>
+                <span class="ocean-tile-title">{% if is_pt == 'pt' %}Fralda{% else %}{% trans "Diaper Change" %}{% endif %}</span>
+                <span class="ocean-tile-sub">{% if is_pt == 'pt' %}Xixi / Cocô{% else %}Wet / Solid{% endif %}</span>
+            </a>
+        {% endif %}
+
+        {% if perms.core.add_pumping %}
+            <a class="ocean-action-tile"
+               href="{% url 'core:pumping-add' %}{% if child_param %}?child={{ child_param }}{% endif %}">
+                <span class="ocean-tile-icon tone-pumping">
+                    <svg width="26" height="26" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                        <path d="M14 5 C14 5 8 12.5 8 17 A6 6 0 0 0 20 17 C20 12.5 14 5 14 5 Z" fill="#c4b5fd" />
+                        <circle cx="12.5" cy="17.5" r="1.4" fill="#f5f3ff" />
+                    </svg>
+                </span>
+                <span class="ocean-tile-title">{% if is_pt == 'pt' %}Ordenha{% else %}{% trans "Pumping" %}{% endif %}</span>
+                <span class="ocean-tile-sub">{% if is_pt == 'pt' %}Volume (ml){% else %}Log Volume{% endif %}</span>
+            </a>
+        {% endif %}
+
+        {% if perms.core.add_tummytime %}
+            <a class="ocean-action-tile"
+               href="{% url 'core:tummytime-add' %}{% if child_param %}?child={{ child_param }}{% endif %}">
+                <span class="ocean-tile-icon tone-tummy">
+                    <svg width="26" height="26" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                        <path d="M14 4 L16.8 10.6 L24 11.3 L18.5 16 L20.2 23 L14 19.2 L7.8 23 L9.5 16 L4 11.3 L11.2 10.6 Z" fill="#fbbf24" />
+                    </svg>
+                </span>
+                <span class="ocean-tile-title">{% if is_pt == 'pt' %}Barriguinha{% else %}{% trans "Tummy Time" %}{% endif %}</span>
+                <span class="ocean-tile-sub">{% if is_pt == 'pt' %}Atividade{% else %}Activity{% endif %}</span>
+            </a>
+        {% endif %}
+
+        {% if perms.core.add_medication %}
+            <a class="ocean-action-tile"
+               href="{% url 'core:medication-add' %}{% if child_param %}?child={{ child_param }}{% endif %}">
+                <span class="ocean-tile-icon tone-meds">
+                    <svg width="26" height="26" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                        <rect x="11.5" y="6" width="5" height="16" rx="2" fill="#fda4af" />
+                        <rect x="6" y="11.5" width="16" height="5" rx="2" fill="#fda4af" />
+                    </svg>
+                </span>
+                <span class="ocean-tile-title">{% if is_pt == 'pt' %}Medicação{% else %}{% trans "Medication" %}{% endif %}</span>
+                <span class="ocean-tile-sub">{% if is_pt == 'pt' %}Dose / Cuidado{% else %}Dose / Care{% endif %}</span>
+            </a>
+        {% endif %}
+
+        {% if perms.core.add_timer %}
+            <a class="ocean-action-tile"
+               href="{% url 'core:timer-add' %}{% if child_param %}?child={{ child_param }}{% endif %}">
+                <span class="ocean-tile-icon tone-timer">
+                    <svg width="26" height="26" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                        <circle cx="14" cy="15" r="8" stroke="#5eead4" stroke-width="2.2" />
+                        <path d="M11 4 H17 M14 15 V10.5 M14 15 L17 17" stroke="#5eead4" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </span>
+                <span class="ocean-tile-title">{% trans "Timer" %}</span>
+                <span class="ocean-tile-sub">{% if is_pt == 'pt' %}Iniciar Cronômetro{% else %}Start Stopwatch{% endif %}</span>
+            </a>
+        {% endif %}
+    </div>
+</section>
+{% endwith %}

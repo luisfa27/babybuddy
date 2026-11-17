@@ -11,6 +11,7 @@
     <li class="breadcrumb-item active" aria-current="page">{% trans "Dashboard" %}</li>
 {% endblock %}
 {% block content %}
+    {% include "dashboard/ocean_quick_actions.html" %}
     <div id="dashboard-child"
          class="row"
          data-masonry='{"percentPosition": true }'>
